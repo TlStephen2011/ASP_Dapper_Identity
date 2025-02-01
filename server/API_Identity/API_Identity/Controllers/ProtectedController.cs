@@ -22,4 +22,11 @@ public class ProtectedController : Controller
             Claims = User.Claims.Select(c => new { c.Type, c.Value })
         });
     }
+    
+    [Authorize(Roles = "Admin")]
+    [HttpGet("admin")]
+    public IActionResult GetAdminData()
+    {
+        return Ok("This is only accessible to admins.");
+    }
 }

@@ -47,12 +47,13 @@ public class AuthController : Controller
             return Unauthorized(new { message = "Invalid username or password" });
         }
 
-        // Generate JWT Token
-        var token = GenerateJwtToken(user);
+        var roles = await _userStore.GetRolesAsync(user, CancellationToken.None);
+        
+        var token = GenerateJwtToken(user, roles);
         return Ok(new { token });
     }
 
-    private string GenerateJwtToken(ApplicationUser user)
+    private string GenerateJwtToken(ApplicationUser user, IList<string> roles)
     {
         var jwtKey = _configuration["Jwt:Key"]!;
         var jwtIssuer = _configuration["Jwt:Issuer"]!;
@@ -60,13 +61,18 @@ public class AuthController : Controller
         var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey));
         var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
 
-        var claims = new[]
+        var claims = new List<Claim>
         {
             new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
             new Claim(JwtRegisteredClaimNames.UniqueName, user.UserName),
             new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
         };
 
+        foreach (var role in roles)
+        {
+            claims.Add(new Claim(ClaimTypes.Role, role));
+        }
+        
         var token = new JwtSecurityToken(
             issuer: jwtIssuer,
             audience: jwtIssuer,
