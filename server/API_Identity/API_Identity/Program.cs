@@ -17,6 +17,16 @@ builder.Services.AddIdentityCore<ApplicationUser>()
     .AddUserStore<UserStore>()
     .AddDefaultTokenProviders();
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAllOrigins", policy =>
+    {
+        policy.AllowAnyOrigin()               // Allows all origins (you can restrict this for security purposes)
+            .AllowAnyHeader()              // Allows all headers
+            .AllowAnyMethod();             // Allows all HTTP methods (GET, POST, etc.)
+    });
+});
+
 builder.Services.AddSwaggerGen(options =>
 {
     options.AddSecurityDefinition("Bearer", new Microsoft.OpenApi.Models.OpenApiSecurityScheme
@@ -59,6 +69,14 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             ValidAudience = jwtIssuer,
             IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey))
         };
+    })
+    .AddGoogle(options =>
+    {
+        options.ClientId = builder.Configuration["Authentication:Google:ClientId"]!;
+        options.ClientSecret = builder.Configuration["Authentication:Google:ClientSecret"]!;
+        options.Scope.Add("email");
+        options.SaveTokens = true;  // Save tokens so they can be accessed server-side
+        options.CallbackPath = new PathString("/api/Auth/google-response");
     });
 
 builder.Services.AddAuthorizationBuilder()

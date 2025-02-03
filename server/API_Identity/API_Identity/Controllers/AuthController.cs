@@ -4,13 +4,16 @@ using System.Text;
 using API_Identity.Models;
 using API_Identity.Models.Dtos.Requests;
 using API_Identity.Stores;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 
 namespace API_Identity.Controllers;
 
-[Route("api/[controller]")]
+[Route("/api/[controller]")]
 [ApiController]
 public class AuthController : Controller
 {
@@ -53,6 +56,53 @@ public class AuthController : Controller
         return Ok(new { token });
     }
 
+    [HttpGet("google")]
+    public IActionResult Login()
+    {
+        // Redirect user to Google for authentication
+        var redirectUrl = $"{Request.Scheme}://{Request.Host}/api/auth/google-response";
+        var properties = new AuthenticationProperties { RedirectUri = redirectUrl };
+        return Challenge(properties, GoogleDefaults.AuthenticationScheme);
+    }
+    
+    [HttpGet("google-response")]
+    public async Task<IActionResult> GoogleResponse()
+    {
+        // This will authenticate the user and get their info from Google
+        var authenticateResult = await HttpContext.AuthenticateAsync(GoogleDefaults.AuthenticationScheme);
+
+        if (!authenticateResult.Succeeded)
+        {
+            return Unauthorized();
+        }
+
+        // Get the user information from Google
+        var userInfo = authenticateResult.Principal;
+        var email = userInfo?.FindFirst(ClaimTypes.Email)?.Value;
+
+        // Generate Claims for Cookie authentication (not using the existing ClaimsIdentity directly)
+        var claims = userInfo?.Claims.ToList() ?? new List<Claim>();
+        claims.Add(new Claim(ClaimTypes.Name, email));
+
+        // Create a new ClaimsIdentity for Cookies authentication
+        var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+        var claimsPrincipal = new ClaimsPrincipal(claimsIdentity);
+
+        // Sign in the user with cookies (signing in via Cookies Authentication)
+        await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, claimsPrincipal);
+
+        // Optionally, generate a JWT for API access (if needed)
+        var jwtToken = GenerateJwtToken(new ApplicationUser
+        {
+            UserName = email,
+            Id = Guid.NewGuid()
+        }, new List<string> { "User" });
+
+        return Ok(new { JwtToken = jwtToken });
+    }
+
+
+    
     private string GenerateJwtToken(ApplicationUser user, IList<string> roles)
     {
         var jwtKey = _configuration["Jwt:Key"]!;
