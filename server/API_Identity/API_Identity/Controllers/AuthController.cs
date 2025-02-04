@@ -5,7 +5,6 @@ using API_Identity.Models;
 using API_Identity.Models.Dtos.Requests;
 using API_Identity.Stores;
 using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -36,7 +35,7 @@ public class AuthController : Controller
     {
         var user = new ApplicationUser { Id = Guid.NewGuid(), UserName = model.UserName };
         var result = await _userManager.CreateAsync(user, model.Password);
-        
+
         if (result.Succeeded) return Ok("User registered successfully");
         return BadRequest(result.Errors);
     }
@@ -45,7 +44,7 @@ public class AuthController : Controller
     public async Task<IActionResult> Login([FromBody] LoginRequestDto request)
     {
         var user = await _userStore.FindByNameAsync(request.Username, CancellationToken.None);
-        if (user == null || !await _userManager.CheckPasswordAsync(user, request.Password)) // Using CheckPasswordAsync
+        if (user == null || !await _userManager.CheckPasswordAsync(user, request.Password))
         {
             return Unauthorized(new { message = "Invalid username or password" });
         }
@@ -59,16 +58,14 @@ public class AuthController : Controller
     [HttpGet("google")]
     public IActionResult Login()
     {
-        // Redirect user to Google for authentication
-        var redirectUrl = $"{Request.Scheme}://{Request.Host}/api/auth/google-response";
+        var redirectUrl = $"{Request.Scheme}://{Request.Host}/api/Auth/generate-jwt";
         var properties = new AuthenticationProperties { RedirectUri = redirectUrl };
         return Challenge(properties, GoogleDefaults.AuthenticationScheme);
     }
     
-    [HttpGet("google-response")]
-    public async Task<IActionResult> GoogleResponse()
+    [HttpGet("generate-jwt")]
+    public async Task<IActionResult> GenerateJwt()
     {
-        // This will authenticate the user and get their info from Google
         var authenticateResult = await HttpContext.AuthenticateAsync(GoogleDefaults.AuthenticationScheme);
 
         if (!authenticateResult.Succeeded)
@@ -76,32 +73,29 @@ public class AuthController : Controller
             return Unauthorized();
         }
 
-        // Get the user information from Google
         var userInfo = authenticateResult.Principal;
-        var email = userInfo?.FindFirst(ClaimTypes.Email)?.Value;
+        var username = userInfo?.FindFirst(ClaimTypes.Email)?.Value;
 
-        // Generate Claims for Cookie authentication (not using the existing ClaimsIdentity directly)
-        var claims = userInfo?.Claims.ToList() ?? new List<Claim>();
-        claims.Add(new Claim(ClaimTypes.Name, email));
-
-        // Create a new ClaimsIdentity for Cookies authentication
-        var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
-        var claimsPrincipal = new ClaimsPrincipal(claimsIdentity);
-
-        // Sign in the user with cookies (signing in via Cookies Authentication)
-        await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, claimsPrincipal);
-
-        // Optionally, generate a JWT for API access (if needed)
+        var existingUser = await _userManager.FindByNameAsync(username);
+        IList<string> roles;
+        if (existingUser is null)
+        {
+            await _userManager.CreateAsync(new ApplicationUser() { Id = Guid.NewGuid(), UserName = username, PasswordHash = ""});
+            roles = new List<string> { "User" };
+        }
+        else
+        {
+            roles = await _userManager.GetRolesAsync(existingUser);
+        }
+        
         var jwtToken = GenerateJwtToken(new ApplicationUser
         {
-            UserName = email,
+            UserName = username,
             Id = Guid.NewGuid()
-        }, new List<string> { "User" });
+        }, roles);
 
         return Ok(new { JwtToken = jwtToken });
     }
-
-
     
     private string GenerateJwtToken(ApplicationUser user, IList<string> roles)
     {

@@ -8,11 +8,6 @@ namespace API_Identity.Controllers;
 [Authorize]
 public class ProtectedController : Controller
 {
-    public ProtectedController()
-    {
-        
-    }
-    
     [HttpGet]
     public async Task<IActionResult> GetProtectedInfo()
     {
