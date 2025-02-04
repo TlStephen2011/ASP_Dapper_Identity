@@ -9,7 +9,10 @@
     <ItemGroup>
         <PackageReference Include="BCrypt.Net-Next" Version="4.0.3" />
         <PackageReference Include="Dapper" Version="2.1.35" />
+        <PackageReference Include="Google.Apis.Auth" Version="1.69.0" />
+        <PackageReference Include="Microsoft.AspNetCore.Authentication.Google" Version="9.0.1" />
         <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="9.0.1" />
+        <PackageReference Include="Microsoft.AspNetCore.Authentication.OAuth" Version="2.3.0" />
         <PackageReference Include="Microsoft.AspNetCore.Cryptography.KeyDerivation" Version="9.0.1" />
         <PackageReference Include="Microsoft.AspNetCore.Identity" Version="2.3.0" />
         <PackageReference Include="Microsoft.Data.SqlClient" Version="6.0.1" />
