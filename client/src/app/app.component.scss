@@ -1,0 +1,21 @@
+/* Ensure the body takes the full height of the viewport */
+body, html {
+    height: 100%;
+    margin: 0;
+}
+
+/* The parent container should take up the full height and center its children */
+:host {
+    display: flex;
+    justify-content: center; /* Centers horizontally */
+    align-items: center;     /* Centers vertically */
+    height: 100%;            /* Ensure it takes the full height */
+    width: 100%;             /* Ensure it takes the full width */
+}
+
+/* If needed, set specific width/height for the login container */
+app-login {
+    width: 100%;
+    max-width: 400px;        /* Optional: limit the width for the login card */
+    padding: 20px;           /* Optional: add some padding */
+}

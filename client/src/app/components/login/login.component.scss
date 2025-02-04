@@ -1,0 +1,57 @@
+/* Styling for the card itself */
+.login-card {
+    border: 1px solid #ccc;  /* Thin greyish-black border */
+    border-radius: 0;         /* No rounded corners */
+    box-shadow: none;         /* No shadow */
+    padding: 20px;
+    width: 100%;
+    max-width: 400px;
+    margin: auto;
+}
+
+/* Add 45px margin to the top of the first input field for both Login and Register */
+.login-form mat-form-field:first-child,
+.register-form mat-form-field:first-child {
+    margin-top: 45px;  /* 45px gap before the first input */
+}
+
+/* Reduce gap between the input fields to 25px for both Login and Register forms */
+.login-form mat-form-field,
+.register-form mat-form-field {
+    margin-bottom: 25px;  /* 25px gap between inputs */
+}
+
+/* Normal button style for the login button */
+.login-btn, .google-login-btn, .register-btn {
+    border-radius: 0;      /* No rounded corners */
+    width: 100%;           /* Full width of the card */
+    padding: 10px 0;       /* Adequate vertical padding */
+    text-transform: none;  /* Prevent button text from being capitalized */
+    margin-top: 10px;      /* Small margin above the button */
+}
+
+/* Styling for the Google login button */
+.google-login-btn {
+    background-color: #4285f4; /* Google's blue color */
+    color: white;              /* White text */
+}
+
+.google-login-btn:hover {
+    background-color: #357ae8; /* Darker blue on hover */
+}
+
+/* Styling for the register button */
+.register-btn {
+    background-color: #3f51b5; /* A blue color for register button */
+    color: white;              /* White text */
+}
+
+.register-btn:hover {
+    background-color: #303f9f; /* Darker blue on hover */
+}
+
+/* Styling for the form */
+.login-form, .register-form {
+    display: flex;
+    flex-direction: column;
+}
