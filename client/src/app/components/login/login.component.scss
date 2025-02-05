@@ -1,12 +1,21 @@
+/* Wrapper that fills the screen and centers the content */
+.login-wrapper {
+    display: flex;
+    justify-content: center;  /* Horizontally centers the card */
+    align-items: center;      /* Vertically centers the card */
+    height: 100vh;            /* Full height of the viewport */
+    width: 100%;              /* Full width of the viewport */
+}
+
 /* Styling for the card itself */
 .login-card {
-    border: 1px solid #ccc;  /* Thin greyish-black border */
-    border-radius: 0;         /* No rounded corners */
-    box-shadow: none;         /* No shadow */
+    border: 1px solid #ccc;      /* Thin greyish-black border */
+    border-radius: 0;             /* No rounded corners */
+    box-shadow: none;             /* No shadow */
     padding: 20px;
-    width: 100%;
-    max-width: 400px;
-    margin: auto;
+    width: 100%;                  /* Full width */
+    max-width: 600px;             /* Maximum width */
+    margin: 0 auto;               /* Center the card */
 }
 
 /* Add 45px margin to the top of the first input field for both Login and Register */
@@ -54,4 +63,28 @@
 .login-form, .register-form {
     display: flex;
     flex-direction: column;
+}
+
+/* Responsive styling: Adjust card width on smaller screens */
+@media (max-width: 768px) {
+    .login-card {
+        padding: 15px;           /* Slightly smaller padding */
+        max-width: 90%;          /* Limit width to 90% on smaller screens */
+    }
+
+    .google-login-btn, .login-btn, .register-btn {
+        width: 100%;             /* Ensure buttons are full-width on smaller screens */
+    }
+}
+
+/* For very small screens, adjust the form elements' margins */
+@media (max-width: 480px) {
+    .login-form mat-form-field,
+    .register-form mat-form-field {
+        margin-bottom: 15px;  /* Reduce gap between input fields */
+    }
+
+    .login-card {
+        max-width: 100%;      /* Allow the card to take full width on very small screens */
+    }
 }
