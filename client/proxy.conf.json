@@ -1,0 +1,9 @@
+{
+    "/api": {
+        "target": "https://localhost:5190",  // Your backend API URL
+        "secure": false,                    // Set to true if you're using HTTPS in the backend
+        "changeOrigin": true,                // Ensures the origin of the request is modified to match the target
+        "logLevel": "debug",                 // Useful for debugging requests
+        "cookieDomain": "localhost"          // Ensures cookies are sent correctly across domains
+    }
+}
