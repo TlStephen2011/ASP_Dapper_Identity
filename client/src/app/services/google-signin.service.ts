@@ -1,8 +1,8 @@
-import { Injectable } from '@angular/core';
-import {OAuthModuleConfig, OAuthService} from 'angular-oauth2-oidc';
+import {Injectable} from '@angular/core';
+import {OAuthService} from 'angular-oauth2-oidc';
 
 @Injectable({
-  providedIn: 'root'
+    providedIn: 'root'
 })
 export class GoogleSigninService {
 

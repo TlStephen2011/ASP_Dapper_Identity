@@ -1,10 +1,12 @@
 using System.Text;
+using API_Common.Exceptions;
 using API_Identity.Models;
+using API_Identity.Services;
 using API_Identity.Stores;
-using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
+using TokenHandler = API_Identity.Services.TokenHandler;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -80,9 +82,12 @@ builder.Services.AddAuthentication(options =>
     });
 
 
-
 builder.Services.AddAuthorizationBuilder()
     .AddPolicy("Admin", policy => policy.RequireRole("Admin"));
+
+builder.Services.AddScoped<GoogleSignInHandler>();
+builder.Services.AddScoped<TokenHandler>();
+builder.Services.AddScoped<ExceptionHandler>();
 
 var app = builder.Build();
 

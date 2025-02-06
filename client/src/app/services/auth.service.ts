@@ -7,12 +7,11 @@ import {HttpClient} from '@angular/common/http';
 export class AuthService {
 
     private loginUrl = 'https://localhost:5001/api/Auth/login';
-    private googleLoginUrl = 'https://localhost:5001/api/Auth/generate-jwt';
 
     constructor(private http: HttpClient) {
     }
 
-    signin(username: string, password: string){
+    signin(username: string, password: string) {
         return this.http.post(this.loginUrl, {username, password});
     }
 }
