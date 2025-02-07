@@ -1,0 +1,19 @@
+name: Run command on remote server
+
+on:
+  workflow_dispatch:  # Allows manual trigger
+
+jobs:
+  ssh_command:
+    name: Run SSH command
+    runs-on: ubuntu-latest
+    steps:
+      - name: Connect and run command on remote server
+        uses: and-fm/cloudflared-ssh-action@v3
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USERNAME }}
+          private_key_filename: ${{ secrets.SSH_PRIVATE_KEY_FILENAME }}
+          private_key_value: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: ${{ secrets.SSH_PORT }}
+          commands: cd ~/ && mkdir hello-world -v

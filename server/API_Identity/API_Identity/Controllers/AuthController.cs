@@ -1,4 +1,5 @@
 ﻿using API_Common.Exceptions;
+using API_Common.Models;
 using API_Identity.Models;
 using API_Identity.Models.Dtos.Requests;
 using API_Identity.Services;
@@ -41,7 +42,7 @@ public class AuthController : Controller
             var user = new ApplicationUser { Id = Guid.NewGuid(), UserName = model.UserName };
             var result = await _userManager.CreateAsync(user, model.Password);
 
-            if (result.Succeeded) return Ok("User registered successfully");
+            if (result.Succeeded) return Ok(new GenericResponseDto() { Message = "User successfully registered"});
             return BadRequest(result.Errors);
         });        
     }
