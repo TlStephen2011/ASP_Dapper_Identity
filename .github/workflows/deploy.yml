@@ -52,7 +52,7 @@ jobs:
           username: ${{ secrets.SSH_USERNAME }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           port: ${{ secrets.SSH_PORT }}
-          source: "angular-app.tar,dotnet-api.tar,docker-compose.yml"
+          source: "angular-app.tar,dotnet-api.tar,docker-compose.yml,nginx.conf"
           target: "/home/${{ secrets.SSH_USERNAME }}/app"
 
   deploy:
