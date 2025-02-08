@@ -1,0 +1,30 @@
+version: '3.8'
+
+services:
+  nginx:
+    image: nginx:latest
+    container_name: nginx
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - angular-client
+      - aspnet-server
+    restart: always
+
+  angular-client:
+    build:
+      context: ./client
+      dockerfile: Dockerfile
+    image: demo-angular-app
+    restart: always
+
+  aspnet-server:
+    build:
+      context: ./server/API_Identity
+      dockerfile: Dockerfile
+    image: demo-dotnet-api
+    environment:
+      - ASPNETCORE_URLS=http://+:5000
+    restart: always
