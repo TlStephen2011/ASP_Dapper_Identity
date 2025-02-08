@@ -34,13 +34,13 @@ jobs:
 
       - name: Publish .NET API
         run: |
-          cd server/ASP_Identity
+          cd server/API_Identity
           dotnet publish -c Release -o ./publish
 
       - name: Archive build artifacts
         run: |
           mkdir -p artifact
-          cp -r client/dist server/ASP_Identity/publish docker-compose.yml artifact/
+          cp -r client/dist server/API_Identity/publish docker-compose.yml artifact/
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
