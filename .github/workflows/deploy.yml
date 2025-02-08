@@ -1,82 +1,91 @@
 name: Deploy to Local Server
 
 on:
-  workflow_dispatch:
   push:
     branches:
       - main
 
 jobs:
   build:
-    name: Build Docker Images
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout Repository
+      - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
 
-      - name: Build Angular Docker Image
-        run: docker build -t demo-angular-app ./client
-
-      - name: Build ASP.NET Core Docker Image
-        run: docker build -t demo-dotnet-api ./server/API_Identity
-
-      - name: Save Docker Images as Tar Files
+      - name: Install Angular dependencies
         run: |
-          docker save -o angular-app.tar demo-angular-app
-          docker save -o dotnet-api.tar demo-dotnet-api
+          cd client
+          npm ci
 
-      - name: Upload Docker Images as Artifacts
+      - name: Build Angular app
+        run: |
+          cd client
+          npm run build --configuration=production
+
+      - name: Set up .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 9.0.x
+
+      - name: Publish .NET API
+        run: |
+          cd server/ASP_Identity
+          dotnet publish -c Release -o ./publish
+
+      - name: Archive build artifacts
+        run: |
+          mkdir -p artifact
+          cp -r client/dist server/ASP_Identity/publish docker-compose.yml artifact/
+
+      - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: docker-images
-          path: "*.tar"
+          name: app-artifacts
+          path: artifact
 
-  copy:
-    name: Copy Files to Server
+  deploy:
     runs-on: ubuntu-latest
     needs: build
     steps:
-      - name: Download Docker Image Artifacts
+      - name: Download artifact
         uses: actions/download-artifact@v4
         with:
-          name: docker-images
+          name: app-artifacts
+          path: ~/app
 
-      - name: Copy Files to Server
-        uses: appleboy/scp-action@v0.1.4
+      - name: Ensure target directory exists
+        uses: appleboy/ssh-action@v0.1.7
         with:
-          host: ${{ secrets.SSH_HOST }}
-          username: ${{ secrets.SSH_USERNAME }}
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
-          port: ${{ secrets.SSH_PORT }}
-          source: "angular-app.tar,dotnet-api.tar,docker-compose.yml"
-          target: "/home/${{ secrets.SSH_USERNAME }}/app"
-
-      - name: List Files After SCP
-        run: ssh -o StrictHostKeyChecking=no -i ${{ secrets.SSH_PRIVATE_KEY }} ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }} "ls -la /home/${{ secrets.SSH_USERNAME }}/app"
-
-  deploy:
-    name: Deploy on Server
-    runs-on: ubuntu-latest
-    needs: copy
-    steps:
-      - name: SSH into Server & Deploy
-        uses: appleboy/ssh-action@v1.2.0
-        with:
-          host: ${{ secrets.SSH_HOST }}
-          username: ${{ secrets.SSH_USERNAME }}
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
-          port: ${{ secrets.SSH_PORT }}
           script: |
-            cd /home/${{ secrets.SSH_USERNAME }}/app
-            if [ ! -f nginx.conf ]; then
-              echo "nginx.conf not found"
-              exit 1
-            fi
-            docker load -i angular-app.tar
-            docker load -i dotnet-api.tar
+            mkdir -p ~/app
+
+      - name: Deploy to Local Server using SCP
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: ${{secrets.SSH_PORT }}
+          source: "~/app/*"
+          target: "~/app"
+
+      - name: Restart Docker Containers
+        uses: appleboy/ssh-action@v0.1.7
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            mkdir -p ~/app
+            cd ~/app
             docker compose down
-            docker compose up -d --force-recreate
+            docker compose up -d --build
+            docker system prune -af
