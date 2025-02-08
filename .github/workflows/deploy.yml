@@ -26,8 +26,8 @@ jobs:
 
       - name: Save Docker Images as Tar Files
         run: |
-          docker save -o angular-app.tar demo-app
-          docker save -o dotnet-api.tar demo-api
+          docker save -o angular-app.tar demo-angular-app
+          docker save -o dotnet-api.tar demo-dotnet-api
 
       - name: Upload Docker Images as Artifacts
         uses: actions/upload-artifact@v4
