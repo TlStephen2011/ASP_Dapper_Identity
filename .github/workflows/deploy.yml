@@ -1,19 +1,56 @@
-name: Run command on remote server
+name: Deploy to Local Server
 
 on:
-  workflow_dispatch:  # Allows manual trigger
+  workflow_dispatch:  # Allows manual trigger from GitHub UI
+  push:
+    branches:
+      - main  # Runs only on push to main
 
 jobs:
-  ssh_command:
-    name: Run SSH command
+  build:
+    name: Build Docker Images and Deploy
     runs-on: ubuntu-latest
+
     steps:
-      - name: Connect and run command on remote server
-        uses: and-fm/cloudflared-ssh-action@v3
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Build Angular Docker Image
+        run: |
+          docker build -t demo-app ./client
+
+      - name: Build ASP.NET Core Docker Image
+        run: |
+          docker build -t demo-api ./server/API_Identity
+
+      - name: Save Docker Images as Tar Files
+        run: |
+          docker save -o angular-app.tar demo-app
+          docker save -o dotnet-api.tar demo-api
+
+      - name: Copy Docker Images to Server
+        uses: appleboy/scp-action@v0.1.4
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USERNAME }}
-          private_key_filename: ${{ secrets.SSH_PRIVATE_KEY_FILENAME }}
-          private_key_value: ${{ secrets.SSH_PRIVATE_KEY }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
           port: ${{ secrets.SSH_PORT }}
-          commands: cd ~/ && mkdir hello-world -v
+          source: "angular-app.tar,dotnet-api.tar,docker-compose.yml"
+          target: "/home/${{ secrets.SSH_USERNAME }}/app"
+
+      - name: SSH into Server & Deploy
+        uses: appleboy/ssh-action@v0.1.10
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USERNAME }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: ${{ secrets.SSH_PORT }}
+          script: |
+            cd /home/${{ secrets.SSH_USERNAME }}/app
+            docker load -i angular-app.tar
+            docker load -i dotnet-api.tar
+            docker compose down
+            docker compose up -d --force-recreate
