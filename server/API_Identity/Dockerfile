@@ -15,15 +15,14 @@ COPY . ./
 # Build and publish
 RUN dotnet publish API_Identity/API_Identity.csproj -c Release -o /publish --no-restore
 
-# Runtime Stage
-# FROM mcr.microsoft.com/dotnet/aspnet:9.0
-# WORKDIR /app
+FROM mcr.microsoft.com/dotnet/aspnet:9.0
+WORKDIR /app
 
-# # Copy published output from build stage
-# COPY --from=build /publish .
+# Copy published output from build stage
+COPY --from=build /publish .
 
-# # Expose the necessary port
-# EXPOSE 5000
+# Expose the necessary port
+EXPOSE 5000
 
-# # Start the app
-# CMD ["dotnet", "API_Identity.dll"]
+# Start the app
+CMD ["dotnet", "API_Identity.dll"]
