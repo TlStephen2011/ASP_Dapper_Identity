@@ -41,8 +41,8 @@ jobs:
         run: |
           mkdir -p artifact/client artifact/server/API_Identity
           cp -r client/dist server/API_Identity/publish docker-compose.yml nginx/nginx.conf artifact/
-          cp client/Dockerfile artifact/client/
-          cp server/API_Identity/Dockerfile artifact/server/API_Identity/
+          cp client/Dockerfile artifact/dist/
+          cp server/API_Identity/Dockerfile artifact/publish/
           ls -R artifact
 
       - name: Upload artifact
