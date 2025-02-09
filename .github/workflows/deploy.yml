@@ -20,7 +20,7 @@ jobs:
       - name: Save nginx.conf
         run: |
           ls -R .
-          cp ./client/nginx.conf ./nginx-client.conf
+          cp ./client/nginx.conf ../nginx-client.conf
 
       - name: Install Angular dependencies
         run: |
@@ -47,6 +47,7 @@ jobs:
           mkdir -p artifact/client artifact/server/API_Identity
           cp -r client/dist server/API_Identity/publish docker-compose.yml nginx/nginx.conf artifact/
           cp client/Dockerfile artifact/dist/
+          cp nginx-client.conf client/nginx.conf
           cp server/API_Identity/Dockerfile artifact/publish/
           ls -R artifact
 
