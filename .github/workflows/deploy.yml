@@ -41,6 +41,7 @@ jobs:
         run: |
           mkdir -p artifact
           cp -r client/dist server/API_Identity/publish docker-compose.yml nginx/nginx.conf artifact/
+          ls -R artifact
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
@@ -69,6 +70,10 @@ jobs:
             rm -rf ~/app/*
             mkdir -p ~/app
 
+      - name: List downloaded artifact files
+        run: ls -R artifact
+
+
       - name: Deploy to Local Server using SCP
         uses: appleboy/scp-action@v0.1.7
         with:
@@ -76,7 +81,7 @@ jobs:
           username: ${{ secrets.SSH_USERNAME }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           port: ${{secrets.SSH_PORT }}
-          source: "artifact/*"
+          source: "artifact/"
           target: "~/app"
 
       - name: Restart Docker Containers
