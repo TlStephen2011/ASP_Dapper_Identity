@@ -57,7 +57,12 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: app-artifacts
-          path: ~/app
+          path: artifact
+
+      - name: Extract artifact
+        run: |
+          unzip artifact/app-artifacts.zip -d artifact/
+          ls -R artifact
 
       - name: Ensure target directory exists
         uses: appleboy/ssh-action@v0.1.7
@@ -81,7 +86,7 @@ jobs:
           username: ${{ secrets.SSH_USERNAME }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           port: ${{secrets.SSH_PORT }}
-          source: "artifact/"
+          source: "artifact/*"
           target: "~/app"
 
       - name: Restart Docker Containers
