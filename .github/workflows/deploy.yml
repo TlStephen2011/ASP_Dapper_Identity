@@ -39,8 +39,10 @@ jobs:
 
       - name: Archive build artifacts
         run: |
-          mkdir -p artifact
+          mkdir -p artifact/client artifact/server/API_Identity
           cp -r client/dist server/API_Identity/publish docker-compose.yml nginx/nginx.conf artifact/
+          cp client/Dockerfile artifact/client/
+          cp server/API_Identity/Dockerfile artifact/server/API_Identity/
           ls -R artifact
 
       - name: Upload artifact
@@ -57,10 +59,10 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: app-artifacts
-          path: artifact
+          path: ./
 
-      - name: Verify downloaded f iles
-        run: ls -l artifact
+      - name: Verify downloaded files
+        run: ls -l .
 
       - name: Ensure target directory exists
         uses: appleboy/ssh-action@v0.1.7
@@ -74,8 +76,7 @@ jobs:
             mkdir -p ~/app
 
       - name: List downloaded artifact files
-        run: ls -R artifact
-
+        run: ls -R .
 
       - name: Deploy to Local Server using SCP
         uses: appleboy/scp-action@v0.1.7
