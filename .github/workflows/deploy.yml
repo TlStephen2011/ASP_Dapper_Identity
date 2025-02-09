@@ -40,7 +40,7 @@ jobs:
       - name: Archive build artifacts
         run: |
           mkdir -p artifact
-          cp -r client/dist server/API_Identity/publish docker-compose.yml artifact/
+          cp -r client/dist server/API_Identity/publish docker-compose.yml nginx/nginx.conf artifact/
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
@@ -61,10 +61,12 @@ jobs:
       - name: Ensure target directory exists
         uses: appleboy/ssh-action@v0.1.7
         with:
-          host: ${{ secrets.SERVER_HOST }}
-          username: ${{ secrets.SERVER_USER }}
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SERVER_USERNAME }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: ${{ secrets.SSH_PORT }}
           script: |
+            rm -rf ~/app/*
             mkdir -p ~/app
 
       - name: Deploy to Local Server using SCP
@@ -74,7 +76,7 @@ jobs:
           username: ${{ secrets.USERNAME }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           port: ${{secrets.SSH_PORT }}
-          source: "~/app/*"
+          source: "artifact/*"
           target: "~/app"
 
       - name: Restart Docker Containers
