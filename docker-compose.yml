@@ -5,6 +5,8 @@ services:
       dockerfile: Dockerfile
     image: demo-angular-app
     container_name: demo-app
+    ports:
+      - "80:80"
     networks:
       - demo
 
@@ -16,6 +18,8 @@ services:
     environment:
       - ASPNETCORE_URLS=http://+:5000
     restart: always
+    ports:
+      - "5000:5000"
     container_name: demo-server
     networks:
       - demo
