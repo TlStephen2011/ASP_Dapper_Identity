@@ -1,36 +1,22 @@
 services:
   angular-client:
     build:
-      context: ./client
+      context: ./dist
       dockerfile: Dockerfile
     image: demo-angular-app
-    restart: always
     container_name: demo-app
     networks:
       - demo
 
   aspnet-server:
     build:
-      context: ./server/API_Identity
+      context: ./publish
       dockerfile: Dockerfile
     image: demo-dotnet-api
     environment:
       - ASPNETCORE_URLS=http://+:5000
     restart: always
     container_name: demo-server
-    networks:
-      - demo
-
-  nginx:
-    build:
-      context: ./nginx
-      dockerfile: dockerfile
-    container_name: nginx-proxy
-    ports:
-      - "80:80"
-    depends_on:
-      - angular-client
-      - aspnet-server
     networks:
       - demo
 
