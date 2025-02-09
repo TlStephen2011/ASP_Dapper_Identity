@@ -59,13 +59,8 @@ jobs:
           name: app-artifacts
           path: artifact
 
-      - name: Verify downloaded files
+      - name: Verify downloaded f iles
         run: ls -l artifact
-
-      - name: Extract artifact
-        run: |
-          unzip artifact/app-artifacts.zip -d artifact/
-          ls -R artifact
 
       - name: Ensure target directory exists
         uses: appleboy/ssh-action@v0.1.7
