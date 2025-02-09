@@ -17,6 +17,10 @@ jobs:
         with:
           node-version: 20
 
+      - name: Save nginx.conf
+        run: |
+          cp /client/nginx.conf ./nginx-client.conf
+
       - name: Install Angular dependencies
         run: |
           cd client
@@ -43,7 +47,6 @@ jobs:
           cp -r client/dist server/API_Identity/publish docker-compose.yml nginx/nginx.conf artifact/
           cp client/Dockerfile artifact/dist/
           cp server/API_Identity/Dockerfile artifact/publish/
-          cp /client/nginx.conf /dist/nginx.conf
           ls -R artifact
 
       - name: Upload artifact
