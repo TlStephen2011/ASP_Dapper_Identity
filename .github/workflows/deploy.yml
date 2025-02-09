@@ -20,7 +20,7 @@ jobs:
       - name: Save nginx.conf
         run: |
           ls -R .
-          cp /client/nginx.conf ./nginx-client.conf
+          cp ./client/nginx.conf ./nginx-client.conf
 
       - name: Install Angular dependencies
         run: |
