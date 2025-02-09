@@ -70,7 +70,7 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           port: ${{ secrets.SSH_PORT }}
           script: |
-            rm -rf ~/app/.
+            rm -rf ~/app/*
             mkdir -p ~/app
 
       - name: List downloaded artifact files
@@ -84,7 +84,7 @@ jobs:
           username: ${{ secrets.SSH_USERNAME }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           port: ${{secrets.SSH_PORT }}
-          source: "artifact/*"
+          source: "artifact/."
           target: "~/app"
 
       - name: Restart Docker Containers
