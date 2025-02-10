@@ -61,6 +61,7 @@ jobs:
           cp -r ./server-files artifact/server
           cp ./Dockerfile-server artifact/server/Dockerfile
           cp ./nginx.conf artifact/nginx.conf
+          cp ./docker-compose.yml artifact/docker-compose.yml
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
