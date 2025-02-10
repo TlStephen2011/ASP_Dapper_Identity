@@ -1,6 +1,7 @@
 name: Deploy to Local Server
 
 on:
+  workflow_dispatch: 
   push:
     branches:
       - main
@@ -17,10 +18,12 @@ jobs:
         with:
           node-version: 20
 
-      - name: Save nginx.conf
+      - name: Save static files
         run: |
-          ls -R .
-          cp ./client/nginx.conf ../nginx-client.conf
+          cp ./client/nginx.conf ./nginx-client.conf
+          cp ./client/Dockerfile ./Dockerfile-client
+          cp ./nginx/nginx.conf ./nginx.conf
+          cp ./server/API_Identity/Dockerfile ./Dockerfile-server
 
       - name: Install Angular dependencies
         run: |
@@ -31,25 +34,33 @@ jobs:
         run: |
           cd client
           npm run build --configuration=production
+          cp -R ./dist ../dist
+          rm -rf ../client
+
+      # - name: Setup .NET dependencies
+      #   run: |
+      #     apt update && apt install curl -y && apt install libicu-dev -y
 
       - name: Set up .NET
-        uses: actions/setup-dotnet@v4
+        uses: actions/setup-dotnet@v4.3.0
         with:
-          dotnet-version: 9.0.x
+          dotnet-version: 9.x
 
       - name: Publish .NET API
         run: |
           cd server/API_Identity
-          dotnet publish -c Release -o ./publish
+          dotnet publish -c Release -o ../../server-files
+          rm -rf ../../server
 
       - name: Archive build artifacts
         run: |
-          mkdir -p artifact/client artifact/server/API_Identity
-          cp -r client/dist server/API_Identity/publish docker-compose.yml nginx/nginx.conf artifact/
-          cp client/Dockerfile artifact/dist/
-          cp nginx-client.conf client/nginx.conf
-          cp server/API_Identity/Dockerfile artifact/publish/
-          ls -R artifact
+          mkdir -p artifact/client artifact/server
+          cp -r ./dist artifact/client
+          cp ./Dockerfile-client artifact/client/Dockerfile
+          cp ./nginx-client.conf artifact/client/nginx.conf
+          cp -r ./server-files artifact/server
+          cp ./Dockerfile-server artifact/server/Dockerfile
+          cp ./nginx.conf artifact/nginx.conf
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
@@ -68,7 +79,7 @@ jobs:
           path: ./
 
       - name: Verify downloaded files
-        run: ls -l .
+        run: ls -R .
 
       - name: Ensure target directory exists
         uses: appleboy/ssh-action@v0.1.7
@@ -80,9 +91,6 @@ jobs:
           script: |
             rm -rf ~/app/*
             mkdir -p ~/app
-
-      - name: List downloaded artifact files
-        run: ls -R .
 
       - name: Deploy to Local Server using SCP
         uses: appleboy/scp-action@v0.1.7

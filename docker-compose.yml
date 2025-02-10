@@ -1,7 +1,7 @@
 services:
   angular-client:
     build:
-      context: ./dist
+      context: ./client
       dockerfile: Dockerfile
     image: demo-angular-app
     container_name: demo-app
@@ -12,7 +12,7 @@ services:
 
   aspnet-server:
     build:
-      context: ./publish
+      context: ./server
       dockerfile: Dockerfile
     image: demo-dotnet-api
     environment:
