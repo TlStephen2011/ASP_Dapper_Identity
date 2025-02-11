@@ -7,8 +7,6 @@ services:
     container_name: demo-app
     ports:
       - "8080:8080"
-    networks:
-      - demo
 
   aspnet-server:
     build:
@@ -21,8 +19,6 @@ services:
     ports:
       - "5000:5000"
     container_name: demo-server
-    networks:
-      - demo
 
   nginx:
     image: nginx:alpine
@@ -34,9 +30,3 @@ services:
     depends_on:
       - angular-client
       - aspnet-server
-    networks:
-      - demo
-
-networks:
-  demo:
-    driver: bridge
