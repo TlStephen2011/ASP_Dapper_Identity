@@ -7,20 +7,19 @@ on:
       - main
 
 jobs:
-  
-  substitute-variables:
-    name: Perform variable substitution
-    uses: microsoft/variable-substitution@v1
-    with:
-      files: '${{env.DOTNET_ROOT}}/ASP_Identity/appsettings.json'
-    env:
-      ConnectionStrings.DatabaseConnection: ${{ secrets.CONNECTIONSTRING }}
 
   build:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+
+      - name: Perform variable substitution
+        uses: microsoft/variable-substitution@v1
+        with:
+          files: './server/API_Identity/appsettings.json'
+        env:
+          ConnectionStrings.DatabaseConnection: ${{ secrets.CONNECTIONSTRING }}
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
