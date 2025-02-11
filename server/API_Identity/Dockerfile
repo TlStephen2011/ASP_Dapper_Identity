@@ -5,7 +5,7 @@ ENV ASPNETCORE_ENVIRONMENT=Production
 ENV ASPNETCORE_URLS=http://+:5000
 
 # Copy published output from build stage
-COPY  ./server/server-files .
+COPY  ./server-files .
 
 # Expose the necessary port
 EXPOSE 5000
