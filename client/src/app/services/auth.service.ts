@@ -1,6 +1,7 @@
 import {Injectable} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
 import {environment} from '../../environments/environment';
+import {Observable} from 'rxjs';
 
 @Injectable({
     providedIn: 'root'
@@ -12,8 +13,11 @@ export class AuthService {
     constructor(private http: HttpClient) {
     }
 
-    signin(username: string, password: string) {
-        console.log(environment);
-        return this.http.post(this.loginUrl, {username, password});
+    signin(username: string, password: string) : Observable<{ jwtToken: string}> {
+        return this.http.post<{ jwtToken: string }>(this.loginUrl, {username, password});
+    }
+
+    handleToken(jwtToken: string) {
+        localStorage.setItem('jwtToken', jwtToken);
     }
 }

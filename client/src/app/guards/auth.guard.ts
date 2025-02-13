@@ -10,13 +10,13 @@ export class AuthGuard implements CanActivate {
     canActivate(
         next: ActivatedRouteSnapshot,
         state: RouterStateSnapshot): boolean {
-        const isLoggedIn = !!localStorage.getItem('jwt'); // Example, check if JWT exists
+        const isLoggedIn = !!localStorage.getItem('jwtToken'); // Example, check if JWT exists
 
         if (isLoggedIn) {
             return true;
         } else {
             // Redirect to log in if not authenticated
-            this.router.navigate(['/login']);
+            void this.router.navigate(['/login']);
             return false;
         }
     }

@@ -1,4 +1,6 @@
-<div class="login-wrapper">
+<p *ngIf="isLoading">Loading...</p>
+
+<div class="login-wrapper" *ngIf="!isLoading">
     <mat-card class="login-card">
         <mat-tab-group>
             <mat-tab label="Login">
@@ -34,7 +36,7 @@
                         <input matInput placeholder="Confirm your password" type="password" />
                     </mat-form-field>
 
-                    <button mat-button color="white" class="register-btn">Register</button>
+                    <button mat-button color="white" class="register-btn" (click)="onRegisterSubmit()">Register</button>
                 </form>
             </mat-tab>
         </mat-tab-group>
