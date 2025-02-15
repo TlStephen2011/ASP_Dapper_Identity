@@ -126,7 +126,6 @@ jobs:
             cd ~/app
             base64 -d app-artifacts.tar.gz.b64 > app-artifacts.tar.gz
             tar -xzf app-artifacts.tar.gz
-            rm app-artifacts.tar.gz app-artifacts.tar.gz.b64
             docker compose down
             docker compose up -d --build
             docker system prune -af
