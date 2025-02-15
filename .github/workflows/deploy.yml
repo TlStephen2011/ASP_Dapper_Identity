@@ -12,6 +12,20 @@ jobs:
     environment: Production
     runs-on: ubuntu-latest
     steps:
+
+      - name: Connect and run command on remote server
+        uses: and-fm/cloudflared-ssh-action@v3
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USERNAME }}
+          private_key_filename: ${{ secrets.SSH_PRIVATE_KEY_FILENAME }}
+          private_key_value: ${{ secrets.SSH_PRIVATE_KEY_VALUE }}
+          port: ${{ secrets.SSH_PORT }}
+          service_token_id: ${{ secrets.SERVICE_TOKEN_ID }}
+          service_token_secret: ${{ secrets.SERVICE_TOKEN_SECRET }}
+          commands: mkdir hello-world -v
+
+
       - name: Checkout repository
         uses: actions/checkout@v4
 
@@ -90,14 +104,6 @@ jobs:
 
       - name: Verify downloaded files
         run: ls -R .
-
-      # - name: test
-      #   run: |
-      #     mkdir ~/.ssh
-      #     echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
-      #     ssh-keyscan -H ${{ secrets.SSH_HOST }} > ~/.ssh/known_hosts
-      #     ssh ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }} -p ${{ secrets.SSH_PORT }}
-      #     mkdir ~/hello-world
 
       - name: Ensure target directory exists
         uses: appleboy/ssh-action@v1.2.0
