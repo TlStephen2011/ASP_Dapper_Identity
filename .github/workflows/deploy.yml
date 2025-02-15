@@ -103,7 +103,7 @@ jobs:
             mkdir -p ~/app
 
       - name: Deploy to Local Server using SCP
-        uses: appleboy/scp-action@v0.1.7
+        uses: appleboy/scp-action@v0.1.9
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USERNAME }}
@@ -113,7 +113,7 @@ jobs:
           target: "~/app"
 
       - name: Restart Docker Containers
-        uses: appleboy/ssh-action@v0.1.7
+        uses: appleboy/ssh-action@v0.1.9
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USERNAME }}
