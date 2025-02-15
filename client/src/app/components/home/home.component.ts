@@ -21,4 +21,8 @@ export class HomeComponent {
                 console.log('Backend response:', response);
             });
     }
+
+    get token() {
+        return localStorage.getItem('jwtToken');
+    }
 }
