@@ -100,41 +100,45 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: app-artifacts
-          path: ./
+          path: ./artifact
 
       - name: Verify downloaded files
-        run: ls -R .
+        run: ls -R ./artifact
 
-      - name: Ensure target directory exists
-        uses: appleboy/ssh-action@v1.2.0
+      - name: Create a tarball of the artifacts
+        run: tar -czf app-artifacts.tar.gz -C artifact .
+
+      - name: Transfer tarball to remote server using SSH
+        uses: and-fm/cloudflared-ssh-action@v3
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USERNAME }}
-          password: ${{ secrets.SSH_PASSWORD }}
+          private_key_filename: ${{ secrets.SSH_PRIVATE_KEY_FILENAME }}
+          private_key_value: ${{ secrets.SSH_PRIVATE_KEY_VALUE }}
           port: ${{ secrets.SSH_PORT }}
-          script: |
-            rm -rf ~/app/*
+          service_token_id: ${{ secrets.SERVICE_TOKEN_ID }}
+          service_token_secret: ${{ secrets.SERVICE_TOKEN_SECRET }}
+          commands: |
             mkdir -p ~/app
+            cat > ~/app/app-artifacts.tar.gz
 
-      - name: Deploy to Local Server using SCP
-        uses: appleboy/scp-action@v0.1.7
+      - name: Upload tarball to server
+        run: cat app-artifacts.tar.gz | ssh -i ~/.ssh/${{ secrets.SSH_PRIVATE_KEY_FILENAME }} -o ProxyCommand="cloudflared access ssh --hostname ${{ secrets.SSH_HOST }}" ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }} "cat > ~/app/app-artifacts.tar.gz"
+
+      - name: Extract and Deploy
+        uses: and-fm/cloudflared-ssh-action@v3
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USERNAME }}
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
-          port: ${{secrets.SSH_PORT }}
-          source: "."
-          target: "~/app"
-
-      - name: Restart Docker Containers
-        uses: appleboy/ssh-action@v1.2.0
-        with:
-          host: ${{ secrets.SSH_HOST }}
-          username: ${{ secrets.SSH_USERNAME }}
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
-          script: |
-            mkdir -p ~/app
+          private_key_filename: ${{ secrets.SSH_PRIVATE_KEY_FILENAME }}
+          private_key_value: ${{ secrets.SSH_PRIVATE_KEY_VALUE }}
+          port: ${{ secrets.SSH_PORT }}
+          service_token_id: ${{ secrets.SERVICE_TOKEN_ID }}
+          service_token_secret: ${{ secrets.SERVICE_TOKEN_SECRET }}
+          commands: |
             cd ~/app
+            tar -xzf app-artifacts.tar.gz
+            rm app-artifacts.tar.gz
             docker compose down
             docker compose up -d --build
             docker system prune -af
