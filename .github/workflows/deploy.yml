@@ -93,11 +93,12 @@ jobs:
 
       - name: test
         run: |
+          mkdir ~/.ssh
           echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
           ssh-keyscan -H ${{ secrets.SSH_HOST }} > ~/.ssh/known_hosts
           ssh ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }} -p ${{ secrets.SSH_PORT }}
           mkdir ~/hello-world
-          
+
       - name: Ensure target directory exists
         uses: appleboy/ssh-action@v1.2.0
         with:
