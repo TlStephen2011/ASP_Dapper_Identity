@@ -94,9 +94,6 @@ jobs:
       - name: Create a tarball of the artifacts
         run: tar -czf app-artifacts.tar.gz -C artifact .
 
-      - name: Base64 encode the tarball
-        run: base64 app-artifacts.tar.gz > app-artifacts.tar.gz.b64
-
       - name: Transfer tarball to remote server using `cloudflared-ssh-action`
         uses: and-fm/cloudflared-ssh-action@v3
         with:
@@ -110,9 +107,7 @@ jobs:
           commands: |
             mkdir -p ~/app
             echo "${{ secrets.SSH_USERNAME }} uploading file..."
-            cat > ~/app/app-artifacts.tar.gz.b64
-            cd ~/app
-            cp -R app-artifacts.tar.gz .
+            scp app-artifacts.tar.gz ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }}:~/app
 
       - name: Decode and Extract on Server
         uses: and-fm/cloudflared-ssh-action@v3
@@ -126,9 +121,9 @@ jobs:
           service_token_secret: ${{ secrets.SERVICE_TOKEN_SECRET }}
           commands: |
             cd ~/app
-            base64 -d app-artifacts.tar.gz.b64 > app-artifacts.tar.gz
             tar -xzf app-artifacts.tar.gz
             docker compose down
             docker compose up -d --build
             docker system prune -af
+
 
