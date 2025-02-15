@@ -111,6 +111,8 @@ jobs:
             mkdir -p ~/app
             echo "${{ secrets.SSH_USERNAME }} uploading file..."
             cat > ~/app/app-artifacts.tar.gz.b64
+            cd ~/app
+            cp -R app-artifacts.tar.gz .
 
       - name: Decode and Extract on Server
         uses: and-fm/cloudflared-ssh-action@v3
