@@ -91,6 +91,18 @@ jobs:
       - name: Verify downloaded files
         run: ls -R .
 
+      - name: Connect and run command on remote server
+        uses: and-fm/cloudflared-ssh-action@v3
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USERNAME }}
+          private_key_filename: ${{ secrets.SSH_PRIVATE_KEY_FILENAME }}
+          private_key_value: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: ${{ secrets.SSH_PORT }}
+          service_token_id: ${{ secrets.SERVICE_TOKEN_ID }}
+          service_token_secret: ${{ secrets.SERVICE_TOKEN_SECRET }}
+          commands: mkdir hello-world -v
+
       - name: Ensure target directory exists
         uses: appleboy/ssh-action@v1.2.0
         with:
