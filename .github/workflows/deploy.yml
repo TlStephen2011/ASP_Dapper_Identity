@@ -94,7 +94,7 @@ jobs:
       - name: Create a tarball of the artifacts
         run: tar -czf app-artifacts.tar.gz -C artifact .
 
-      - name: Transfer tarball to remote server using `cloudflared-ssh-action`
+      - name: Ensure deploy directory
         uses: and-fm/cloudflared-ssh-action@v3
         with:
           host: ${{ secrets.SSH_HOST }}
@@ -106,8 +106,18 @@ jobs:
           service_token_secret: ${{ secrets.SERVICE_TOKEN_SECRET }}
           commands: |
             mkdir -p ~/app
-            echo "${{ secrets.SSH_USERNAME }} uploading file..."
-            scp app-artifacts.tar.gz ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }}:~/app
+
+      - name: Transfer file
+        uses: zgunz42/cloudflared-scp-action
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USERNAME }}
+          private_key: ${{ secrets.SSH_PRIVATE_KEY_VALUE }}
+          port: ${{ secrets.SSH_PORT }}
+          from: ./app-artifacts.tar.gz
+          to: ~/app
+          service_token_id: ${{ secrets.SERVICE_TOKEN_ID }}
+          service_token_secret: ${{ secrets.SERVICE_TOKEN_SECRET }}
 
       - name: Decode and Extract on Server
         uses: and-fm/cloudflared-ssh-action@v3
