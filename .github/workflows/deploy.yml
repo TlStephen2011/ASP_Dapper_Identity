@@ -109,7 +109,7 @@ jobs:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USERNAME }}
           private_key_filename: ${{ secrets.SSH_PRIVATE_KEY_FILENAME }}
-          private_key: ${{ secrets.SSH_PRIVATE_KEY_VALUE }}
+          private_key_value: ${{ secrets.SSH_PRIVATE_KEY_VALUE }}
           port: ${{ secrets.SSH_PORT }}
           source: ./app-artifacts.tar.gz
           target: ~/app
