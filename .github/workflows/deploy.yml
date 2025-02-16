@@ -108,7 +108,7 @@ jobs:
             mkdir -p ~/app
 
       - name: Transfer file
-        uses: zgunz42/cloudflared-scp-action
+        uses: zgunz42/cloudflared-scp-action@v1.2.1
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USERNAME }}
