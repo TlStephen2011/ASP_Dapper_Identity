@@ -84,9 +84,6 @@ jobs:
           name: app-artifacts
           path: ./artifact
 
-      - name: Verify downloaded files
-        run: ls -R ./artifact
-
       - name: Create a tarball of the artifacts
         run: tar -czf app-artifacts.tar.gz -C artifact .
 
@@ -129,6 +126,7 @@ jobs:
           commands: |
             cd ~/app
             tar -xzf app-artifacts.tar.gz
+            rm app-artifacts.tar.gz
             docker compose down
             docker compose up -d --build
             docker system prune -af
