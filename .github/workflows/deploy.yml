@@ -45,11 +45,7 @@ jobs:
           npm run build --configuration=production
           cp -R ./dist ../dist
           rm -rf ../client
-
-      # - name: Setup .NET dependencies
-      #   run: |
-      #     apt update && apt install curl -y && apt install libicu-dev -y
-
+          
       - name: Set up .NET
         uses: actions/setup-dotnet@v4.3.0
         with:
@@ -108,14 +104,15 @@ jobs:
             mkdir -p ~/app
 
       - name: Transfer file
-        uses: zgunz42/cloudflared-scp-action@v1.2.1
+        uses: TlStephen2011/cloudflared-scp-action@v0.0.3
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USERNAME }}
+          private_key_filename: ${{ secrets.SSH_PRIVATE_KEY_FILENAME }}
           private_key: ${{ secrets.SSH_PRIVATE_KEY_VALUE }}
           port: ${{ secrets.SSH_PORT }}
-          from: ./app-artifacts.tar.gz
-          to: ~/app
+          source: ./app-artifacts.tar.gz
+          target: ~/app
           service_token_id: ${{ secrets.SERVICE_TOKEN_ID }}
           service_token_secret: ${{ secrets.SERVICE_TOKEN_SECRET }}
 
