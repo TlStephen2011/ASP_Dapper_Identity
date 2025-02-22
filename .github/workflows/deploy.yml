@@ -67,6 +67,7 @@ jobs:
           cp ./Dockerfile-server artifact/server/Dockerfile
           cp ./nginx.conf artifact/nginx.conf
           cp ./docker-compose.yml artifact/docker-compose.yml
+          cp -r ./k8s artifact/k8s
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
@@ -127,8 +128,12 @@ jobs:
             cd ~/app
             tar -xzf app-artifacts.tar.gz
             rm app-artifacts.tar.gz
-            docker compose down
-            docker compose up -d --build
-            docker system prune -af
+
+            docker build -t demo-angular-app:latest ./client
+            docker build -t demo-server-app:latest ./server
+
+            kubectl apply -f ./k8s/app-deployment.yaml
+            kubectl apply -f ./k8s/server-deployment.yaml
+
 
 

@@ -1,0 +1,33 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: my-server-app
+  labels:
+    app: my-server-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: my-server-app
+  template:
+    metadata:
+      labels:
+        app: my-server-app
+    spec:
+      containers:
+      - name: my-server-app
+        image: demo-server-app:latest
+        ports:
+        - containerPort: 5000
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: my-server-app-service
+spec:
+  selector:
+    app: my-server-app
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
